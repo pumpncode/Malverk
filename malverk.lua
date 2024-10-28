@@ -10,7 +10,7 @@
 
 Malverk = SMODS.current_mod
 
-Malverk.testing = true
+Malverk.testing = false
 Malverk.badges = {}
 
 SMODS.load_file('api/AltTexture.lua')()
