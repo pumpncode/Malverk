@@ -74,6 +74,7 @@ function Malverk.set_defaults()
 end
 
 function Malverk.update_atlas(atlas_type)
+    if table.size(TexturePacks) == 0 then return end
     Malverk.set_defaults()
     for _, pack_key in ipairs(Malverk.config.selected) do
         if TexturePacks[pack_key] then
