@@ -30,7 +30,7 @@ This example replaces the texture for every Joker object.
 - `keys`, used to provide a table of keys of objects that should be changed. Used when creating a texture that changes only some of the object, or when using a sprite sheet where the objects are in a different order to vanilla
 - `original_sheet`, set to `true` when using a sprite sheet that matches positioning of vanilla sprite sheets
 - `display_pos`, set to the `key` of the item you want to use as the sprite displayed in the Malverk UI
-- `localisation`, a table of alternate localisations for your new textures:
+- `localization`, set to `true` when using a localization file,  alternatively a table of alternate localizations for your new textures:
     ```lua
     {
         key = {
@@ -70,3 +70,6 @@ TexturePack({
 ```
 
 The `TexturePack` will use the first object in your first `AltTexture` listed inside `textures` as the display image.
+
+You can also change the text of objects you are not retexturing by setting the following value:
+- `localization`, set to `true` when using a localization file,  alternatively a table of alternate localizations for your new textures:

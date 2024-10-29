@@ -156,6 +156,27 @@ function Malverk.update_atlas(atlas_type)
                     end
                 end
             end
+            if pack.localization then
+                local loc = G.localization.descriptions.texture_packs[pack.key].localization
+                for center, new_loc in pairs(loc) do
+                    local object = G.P_CENTERS[center] or nil
+                    if object then
+                        print(center)
+                        print(tprint(new_loc))
+                        local game_table = AltTextures_Utils.game_table[object.set] or 'P_CENTERS'
+                        local default_loc = G[game_table][center].default_loc_txt
+                        if object.set == 'Booster' then
+                            local temp_center = center:sub(1, -3)
+                            SMODS.process_loc_text(G.localization.descriptions.Other[temp_center], 'name', new_loc.name and new_loc or default_loc, 'name')
+                            SMODS.process_loc_text(G.localization.descriptions.Other[temp_center], 'text', new_loc.text and new_loc or default_loc, 'text')
+                        else
+                            SMODS.process_loc_text(G.localization.descriptions[AltTextures_Utils.loc_table[object.set] or object.set][center .. (object.set == Seal and '_seal' or '')], 'name', new_loc.name and new_loc or default_loc, 'name')
+                            SMODS.process_loc_text(G.localization.descriptions[AltTextures_Utils.loc_table[object.set] or object.set][center .. (object.set == Seal and '_seal' or '')], 'text', new_loc.text and new_loc or default_loc, 'text')
+                        end
+                        G[game_table][center].set_card_type_badge = new_loc.badge and Malverk.badges[new_loc.badge] or (G[game_table][center].default_card_type_badge ~= '1' and G[game_table][center].default_card_type_badge or false)
+                    end
+                end
+            end
         end
     end
 
