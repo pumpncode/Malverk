@@ -12,9 +12,10 @@ Malverk = SMODS.current_mod
 
 Malverk.badges = {}
 
-SMODS.load_file('api/AltTexture.lua')()
-SMODS.load_file('utils/keys.lua')()
-SMODS.load_file('utils/ui.lua')()
+assert(SMODS.load_file('api/AltTexture.lua'))()
+assert(SMODS.load_file('utils/keys.lua'))()
+assert(SMODS.load_file('utils/ui.lua'))()
+
 if Malverk.testing then SMODS.load_file('testing/test.lua')() end
 
 function Malverk.set_defaults()
@@ -137,8 +138,8 @@ function Malverk.update_atlas(atlas_type)
                             end
                             local default_loc = G[game_table][center].default_loc_txt
                             local new_loc = {}
-                            if texture.localisation and texture.localisation[center] then -- if loc_txt exists, set it
-                                new_loc = texture.localisation[center]
+                            if texture.localization then -- if loc_txt exists, set it
+                                new_loc = G.localization.descriptions.alt_texture[texture.key][center] or texture.localisation[center]
                             end
                             SMODS.process_loc_text(G.localization.descriptions[AltTextures_Utils.loc_table[texture.set] or texture.set][center .. (texture.set == Seal and '_seal' or '')], 'name', new_loc.name and new_loc or default_loc, 'name')
                             SMODS.process_loc_text(G.localization.descriptions[AltTextures_Utils.loc_table[texture.set] or texture.set][center .. (texture.set == Seal and '_seal' or '')], 'text', new_loc.text and new_loc or default_loc, 'text')
@@ -196,4 +197,10 @@ Malverk.copy_stickers = function()
         stickers[k] = Sprite(0, 0, G.CARD_W, G.CARD_H, G.ASSET_ATLAS[v.atlas and (v.atlas.name or v.atlas.key) or 'stickers'], v.sprite_pos)
     end
     return stickers
+end
+
+local main_menu = Game.main_menu
+function Game:main_menu(context)
+    Malverk.update_atlas()
+    main_menu(self, context)
 end

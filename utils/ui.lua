@@ -1,10 +1,3 @@
-local collection_ui = create_UIBox_your_collection
-local first_pass = true
-function create_UIBox_your_collection()
-    if first_pass then Malverk.update_atlas(); first_pass = false end
-    return collection_ui()
-end
-
 function G.FUNCS.textures_button(e)
 	G.SETTINGS.paused = true
 

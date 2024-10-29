@@ -112,10 +112,9 @@ AltTexture = SMODS.GameObject:extend {
             mod = self.mod
         })
         if self.soul then
-            local dot_pos = string.find(self.path, "%.")
             SMODS.Atlas.inject({
                 key = self.key..'_soul',
-                path = string.sub(self.path,1,dot_pos - 1)..'_soul'..string.sub(self.path, dot_pos),
+                path = self.soul,
                 px = self.px or AltTextures_Utils.dimensions[self.set] and AltTextures_Utils.dimensions[self.set].px or 71, -- px and py are not required
                 py = self.py or AltTextures_Utils.dimensions[self.set] and AltTextures_Utils.dimensions[self.set].py or 95,
                 obj_table = {},

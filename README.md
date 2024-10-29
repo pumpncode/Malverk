@@ -48,7 +48,7 @@ This example replaces the texture for every Joker object.
     ```
 
 - `frames`, used for **animated** objects, set to the number of frames in your sprite sheet
-- `soul`, used for `Spectral` objects, set to `true` if you have a sprite sheet for the soul sprite *(sprite sheet should have the same name as your spectral sheet with `_soul` appended)* 
+- `soul`, used for `Spectral` objects, set as the path of the sprite sheet with the soul sprite
 - `soul_keys`, used to provide a table of keys of objects that should have a floating sprite. Floating sprites should be the next sprite along in your sprite sheet. *(Must be used in conjunction with `keys`)*
 - `stickers`, used for `Stake` objects, set to `true` if you have a sprite sheet for stickers *(sprite sheet should have the same name as your stake sheet with `_stickers` appended)*
 
