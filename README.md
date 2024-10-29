@@ -52,6 +52,9 @@ This example replaces the texture for every Joker object.
 - `soul_keys`, used to provide a table of keys of objects that should have a floating sprite. Floating sprites should be the next sprite along in your sprite sheet. *(Must be used in conjunction with `keys`)*
 - `stickers`, used for `Stake` objects, set to `true` if you have a sprite sheet for stickers *(sprite sheet should have the same name as your stake sheet with `_stickers` appended)*
 
+- `px`/`py`, used for non-standard dimensions in your atlas
+- `sticker_px`/`sticker_py`, used for non-standard dimensions in your stake sticker atlas
+
 ## Defining a TexturePack
 Once you have defined your `AltTexture` objects, you need to bundle them together into a `TexturePack` object to appear in the Malverk UI. Using the following skeleton will create your `TexturePack`.
 
