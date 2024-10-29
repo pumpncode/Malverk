@@ -3,7 +3,7 @@
 --- MOD_ID: malverk
 --- PREFIX: malverk
 --- MOD_AUTHOR: [Eremel_]
---- MOD_DESCRIPTION: Development build of AltTextures
+--- MOD_DESCRIPTION: Malverk is an all-in-one texture manager. With an inbuilt API for AltTextures and TexturePacks, Malverk integrates a simple UI to customise which textures are applied to your game whenever you wish.
 --- BADGE_COLOUR: 3FC7EB
 --- PRIORITY: -999999
 --- VERSION: 0.9-beta
