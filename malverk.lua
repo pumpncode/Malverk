@@ -10,7 +10,6 @@
 
 Malverk = SMODS.current_mod
 
-Malverk.testing = false
 Malverk.badges = {}
 
 SMODS.load_file('api/AltTexture.lua')()
@@ -27,6 +26,7 @@ function Malverk.set_defaults()
                 if G[game_table][center] then
                     if texture.set == 'Seal' then
                         G.P_SEALS[center].default_pos = G.P_SEALS[center].default_pos or copy_table(G[game_table][center].sprite_pos)
+                        G[game_table][center]:remove()
                         G[game_table][center] = Sprite(0, 0, G.CARD_W, G.CARD_H, G.ASSET_ATLAS['centers'], G.P_SEALS[center].default_pos)
                     else
                         G[game_table][center].atlas = texture.atlas.key
@@ -48,8 +48,10 @@ function Malverk.set_defaults()
                     if texture.set == "Stake" or texture.set == 'Sticker' then
                         G.default_stickers = G.default_stickers or Malverk.copy_stickers()
                         for k, v in pairs(G.default_stickers) do
+                            G.shared_stickers[k]:remove()
                             G.shared_stickers[k] = Sprite(0, 0, G.CARD_W, G.CARD_H, G.ASSET_ATLAS[v.atlas.name or v.atlas.key], v.sprite_pos)
                             if G['shared_sticker_'..k] then
+                                G['shared_sticker_'..k]:remove()
                                 G['shared_sticker_'..k] = Sprite(0, 0, G.CARD_W, G.CARD_H, G.ASSET_ATLAS[v.atlas.name or v.atlas.key], v.sprite_pos)
                             end
                         end
@@ -87,6 +89,7 @@ function Malverk.update_atlas(atlas_type)
                     for i, center in ipairs(texture.keys or {}) do
                         if G[game_table][center] then
                             if texture.set == 'Seal' then
+                                G[game_table][center]:remove()
                                 G[game_table][center] = Sprite(0, 0, G.CARD_W, G.CARD_H, G.ASSET_ATLAS[texture.atlas.key], (texture.columns and not texture.original_sheet and {x = (i-1) % texture.columns, y = math.floor((i-1)/texture.columns)} or G.P_SEALS[center].default_pos))
                             else
                                 G[game_table][center].atlas = texture.atlas.key
@@ -98,17 +101,21 @@ function Malverk.update_atlas(atlas_type)
                             end
                             if center == 'c_soul' then
                                 if texture.soul then
+                                    G.shared_soul:remove()
                                     G.shared_soul = Sprite(0, 0, G.CARD_W, G.CARD_H, G.ASSET_ATLAS[texture.soul.key], G.P_CENTERS.soul.pos)
                                 else
                                     G.shared_soul = G.default_soul
                                 end
                                 if texture.soul_keys and table.contains(texture.soul_keys, center) then
                                     soul_count = soul_count + 1
+                                    G.shared_soul:remove()
                                     G.shared_soul = Sprite(0, 0, G.CARD_W, G.CARD_H, G.ASSET_ATLAS[texture.atlas.key], {x = (i+soul_count-1) % texture.columns, y = math.floor((i+soul_count-1)/texture.columns)})
                                 end
                             end
                             if texture.set == 'Sticker' then
                                 if G['shared_sticker_'..center] then
+                                    G['shared_sticker_'..center]:remove()
+                                    G.shared_stickers[center]:remove()
                                     G['shared_sticker_'..center] = Sprite(0, 0, G.CARD_W, G.CARD_H, G.ASSET_ATLAS[texture.atlas and texture.atlas.key or 'stickers'], texture.columns and not texture.original_sheet and {x = (i-1) % texture.columns, y = math.floor((i-1)/texture.columns)} or G.default_stickers[center].sprite_pos)
                                     G.shared_stickers[center] = Sprite(0, 0, G.CARD_W, G.CARD_H, G.ASSET_ATLAS[texture.atlas and texture.atlas.key or 'stickers'], texture.columns and not texture.original_sheet and {x = (i-1) % texture.columns, y = math.floor((i-1)/texture.columns)} or G.default_stickers[center].sprite_pos)
                                 end
@@ -125,6 +132,7 @@ function Malverk.update_atlas(atlas_type)
                                 -- G[game_table][center].soul_pos = G[game_table][center].default_soul == "1" and false or G[game_table][center].default_soul
                             end
                             if texture.stickers then
+                                G.shared_stickers[center:sub(7)]:remove()
                                 G.shared_stickers[center:sub(7)] = Sprite(0, 0, G.CARD_W, G.CARD_H, G.ASSET_ATLAS[texture.stickers.key], texture.columns and not texture.original_sheet and {x = (i-1) % texture.columns, y = math.floor((i-1)/texture.columns)} or G.default_stickers[center:sub(7)].sprite_pos)
                             end
                             local default_loc = G[game_table][center].default_loc_txt

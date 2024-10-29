@@ -30,6 +30,9 @@ position = "before"
 payload = '''
 if self.texture_selected then
     self.children.center:draw_shader('malverk_texture_selected', nil, self.ARGS.send_to_shader)
+    if self.children.front then
+        self.children.front:draw_shader('malverk_texture_selected', nil, self.ARGS.send_to_shader)
+    end
 end
 '''
 match_indent = true

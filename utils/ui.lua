@@ -397,7 +397,7 @@ function create_texture_card(area, texture_pack)
         nil, copy_table(G.P_CENTER_POOLS.Joker[1]),
         {texture_pack = texture_pack})
     
-    local layer = texture.animated and 'animatedSprite' or 'center'    
+    local layer = texture.animated and 'animatedSprite' or texture.set == 'Sticker' and 'front' or 'center'    
     local game_table = AltTextures_Utils.game_table[texture.set] or 'P_CENTERS'
     local scale = math.max(texture.atlas.px/71, texture.atlas.py/95)*1.5
     local W = G.CARD_W*(texture.atlas.px/71)/scale
@@ -416,6 +416,18 @@ function create_texture_card(area, texture_pack)
         card.children.back:remove()
         card.no_shadow = true
         return card
+    end
+
+    if layer == 'front' and not card.children[layer] then
+        card.children.center.atlas.name = 'centers'
+        card.children.center.sprite_pos = {x=1,y=0}
+        card.children.center:reset()
+        card.children[layer] = Sprite(card.T.x, card.T.y, card.T.w, card.T.h, G.ASSET_ATLAS[texture.atlas.key], G[game_table][texture.keys[1]].pos)
+        card.children[layer].states.hover = card.states.hover
+        card.children[layer].states.click = card.states.click
+        card.children[layer].states.drag = card.states.drag
+        card.children[layer].states.collide.can = false
+        card.children[layer]:set_role({major = card, role_type = 'Glued', draw_major = card})
     end
     
     if texture_pack ~= 'default' then
