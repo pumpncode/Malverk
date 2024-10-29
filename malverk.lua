@@ -161,8 +161,6 @@ function Malverk.update_atlas(atlas_type)
                 for center, new_loc in pairs(loc) do
                     local object = G.P_CENTERS[center] or nil
                     if object then
-                        print(center)
-                        print(tprint(new_loc))
                         local game_table = AltTextures_Utils.game_table[object.set] or 'P_CENTERS'
                         local default_loc = G[game_table][center].default_loc_txt
                         if object.set == 'Booster' then
