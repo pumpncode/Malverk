@@ -1,10 +1,12 @@
 function G.FUNCS.textures_button(e)
 	G.SETTINGS.paused = true
-
+    SMODS.save_mod_config(Malverk)
 	G.FUNCS.overlay_menu({
 		definition = create_UIBox_texture_selection()
 	})
 end
+
+
 
 function G.FUNCS.texture_type(e)
     sendDebugMessage(e.config.id)
@@ -80,35 +82,31 @@ function create_UIBox_texture_selection()
                         -- {n=G.UIT.T, config = {text = 'priority card area', scale = 0.7, colour = G.C.WHITE}}
                         {n = G.UIT.O, config = {object = Malverk.texture_pack_priority_area, colour = G.C.BLUE}}
                     }},
-                    {n=G.UIT.C, config = {align = 'cm', padding = 0.1, minw = 0.5}, nodes = {{n=G.UIT.T, config = {text = localize('malverk_high'), scale = 0.5, vert = true, colour = G.C.L_BLACK}}}},
+                    {n=G.UIT.C, config = {align = 'cm', padding = 0.1, minw = 0.5}, nodes = {{n=G.UIT.T, config = {instance_type = 'UIBOX', text = localize('malverk_high'), scale = 0.5, vert = true, colour = G.C.L_BLACK}}}},
                 }},
                 -- Main Texture Select Display
                 {n=G.UIT.R, config = {colour = G.C.BLACK, r = 0.1, minh = 7.5, minw = 12, align = 'tm'}, nodes = {
                     generate_texture_pack_areas_ui(),
                     -- Page cycler
-                    {n=G.UIT.R, config = {align = 'cm'}, nodes = {
-                        table.size(TexturePacks) > 10 and {n=G.UIT.C, config={r = 0.1, colour = Malverk.badge_colour, minw = 1.5, align = 'tm', shadow = true, direction = -1, button = 'malverk_change_page', hover = true, minh = 0.5}, nodes = {
-                            {n=G.UIT.T, config = {text = '<', scale = 0.5, colour = G.C.WHITE}}
-                        }} or nil,
-                        {n=G.UIT.C, config = {align = 'cm', minw = 4}, nodes = {
-                            {n=G.UIT.O, config = {object = DynaText({
-                                string = {{ref_table = Malverk.texture_pack_areas_page, ref_value = 'text'}},
-                                scale = 0.5,
-                                colours = {G.C.WHITE},
-                                pop_in_rate = 0,
-                                silent = true
-                            })}}
-                        }},
-                        table.size(TexturePacks) > 10 and {n=G.UIT.C, config={r = 0.1, colour = Malverk.badge_colour, minw = 1.5, align = 'tm', shadow = true, direction = 1, button = 'malverk_change_page', hover = true, minh = 0.5}, nodes = {
-                            {n=G.UIT.T, config = {text = '>', scale = 0.5, colour = G.C.WHITE}}
-                        }} or nil,
-                    }}
+                    {n=G.UIT.R, config = {align = 'lm'}, nodes ={
+                        EremelUtility.page_cycler({
+                            object_table = TexturePacks,
+                            page_size = 10,
+                            key = 'texture_pack_selector',
+                            switch_func = Malverk.new_change_page
+                        })
+                    }},
                 }},
             }},
         }}
     }})
     return t
 
+end
+
+Malverk.new_change_page = function(pages)
+    alt_text_clean_up()
+    populate_texture_select_areas(pages.to)
 end
 
 function create_UIBox_texture_selection_advanced()
@@ -157,7 +155,7 @@ function generate_texture_pack_areas()
     end
     Malverk.texture_pack_areas = {}
     Malverk.texture_pack_areas_page = {
-        page = 0,
+        page = 1,
         total = math.ceil(table.size(TexturePacks)/10),
     }
     Malverk.texture_pack_areas_page.text = localize('k_page')..' '..(Malverk.texture_pack_areas_page.page+1)..'/'..Malverk.texture_pack_areas_page.total
@@ -195,7 +193,7 @@ function generate_texture_pack_areas_ui()
 end
 
 function populate_texture_select_areas(page)
-    local count = 1 + page * 10
+    local count = 1 + (page-1) * 10
     for i=1, 10 do
         if count > table.size(TexturePacks) then return end
         local card = create_texture_card(Malverk.texture_pack_areas[i], TexturePacks_Utils.keys[count])
@@ -292,7 +290,7 @@ function Card:highlight(highlighted)
         if highlighted then
             self.children.use_button = UIBox{
                 definition = create_texture_pack_buttons(self), 
-                config = {align = 'bm', offset = {x=0, y=-0.4}, parent = self}
+                config = {align = 'cm', offset = {x=0, y=0.4}, parent = self}
             }
         end
         return
@@ -301,36 +299,111 @@ function Card:highlight(highlighted)
     if highlighted and self.area.config.texture_pack then
         self.children.use_button = UIBox{
             definition = create_texture_pack_buttons(self, self.texture_selected), 
-            config = {align = 'bm', offset = {x=0, y=-0.4}, parent = self}
+            config = {align = 'cm', offset = {x=0, y=0.4}, parent = self}
         }
     end
 end
 
 local applied_shader = SMODS.Shader({key = 'texture_selected', path = 'applied.fs'})
-
+local settings_atlas = SMODS.Atlas{key = 'settings', path = 'settings.png', px = 32, py = 32}
 function create_texture_pack_buttons(card, active)
     local apply
+    local config = {n=G.UIT.R, config={minh = 0.55}}
+    local spacer = {n=G.UIT.R, config={minh = 0.8}}
     if card.area.config.type == 'joker' then
-        apply = {n=G.UIT.C, config={align = "cm"}, nodes={
-            {n=G.UIT.C, config={ref_table = card, align = "bm", maxw = G.CARD_W * 0.5, padding = 0.1, r=0.08, minw = 0.5 * G.CARD_W, minh = 0.8, hover = true, colour = G.C.RED, button = 'remove_texture'}, nodes={
-                {n=G.UIT.T, config={text = localize('b_remove'), colour = G.C.UI.TEXT_LIGHT, scale = 0.35, shadow = true}}
-            }}
-        }}
-    else
-        apply = {n=G.UIT.C, config={align = "cm"}, nodes={
-                {n=G.UIT.C, config={ref_table = card, align = "bm", maxw = G.CARD_W * 0.5, padding = 0.1, r=0.08, minw = 0.5 * G.CARD_W, minh = 0.8, hover = true, colour = active and G.C.GREY or G.C.GREEN, button = not active and 'apply_texture'}, nodes={
-                    {n=G.UIT.T, config={text = active and localize('b_applied') or localize('b_apply'), colour = G.C.UI.TEXT_LIGHT, scale = 0.35, shadow = true}}
+        apply = {n=G.UIT.R, config={align = 'cm'}, nodes={
+            {n=G.UIT.C, config={align = "cm"}, nodes={
+                {n=G.UIT.C, config={ref_table = card, align = "bm", maxw = G.CARD_W * 0.5, shadow = true, padding = 0.1, r=0.08, minw = 0.5 * G.CARD_W, minh = 0.8, hover = true, colour = G.C.RED, button = 'remove_texture'}, nodes={
+                    {n=G.UIT.T, config={text = localize('b_remove'), colour = G.C.UI.TEXT_LIGHT, scale = 0.35, shadow = true}}
                 }}
             }}
+        }}
+        config = {n=G.UIT.R, config={minh = 1.45}}
+        spacer = {n=G.UIT.R, config={minh = 0.65}}
+        if #TexturePacks[card.params.texture_pack].textures > 1 then 
+            local settings_sprite = Sprite(0, 0, 0.5, 0.5, G.ASSET_ATLAS['malverk_settings'] ,{x=0, y=0})
+            config = {n=G.UIT.R, config={align = 'cr', minw = 1.6*G.CARD_W}, nodes={
+                {n=G.UIT.R, config={minh = 0.65}},
+                {n=G.UIT.R, nodes = {
+                    {n=G.UIT.C, config={minw = G.CARD_W, minh = 0.8, colour = G.C.IMPORTANT, r = 0.1, align = 'cr', shadow = true, padding = 0.1, hover = true, button = 'texture_config', ref_table = card.params}, nodes = {
+                        {n=G.UIT.O, config={can_collide = false, object = settings_sprite, shadow = true}}
+                    }}
+                }}
+            }}
+            spacer = {n=G.UIT.R, config={minh = 0.65}}
+        end
+    else
+        apply = {n=G.UIT.C, config={align = "cm"}, nodes={
+                {n=G.UIT.C, config={ref_table = card, align = "bm", maxw = G.CARD_W * 0.5, shadow = true, padding = 0.1, r=0.08, minw = 0.5 * G.CARD_W, minh = 0.8, hover = true, colour = active and G.C.GREY or G.C.GREEN, button = not active and 'apply_texture'}, nodes={
+                    {n=G.UIT.T, config={text = active and localize('b_applied') or localize('b_apply'), colour = G.C.UI.TEXT_LIGHT, scale = 0.35, shadow = true}}
+                }}
+            }}       
     end
-    local t = {n=G.UIT.ROOT, config = {padding = 0, colour = G.C.CLEAR}, nodes={
+    local t = {n=G.UIT.ROOT, config = {align = 'cm', padding = 0, colour = G.C.CLEAR}, nodes={
         {n=G.UIT.C, config={align = 'cm'}, nodes={
-            {n=G.UIT.R, config={align = 'cm'}, nodes={
-                apply
-            }},
+            config,
+            spacer,
+            apply
         }},
     }}
     return t
+end
+
+G.FUNCS.texture_config = function(e)
+	G.FUNCS.overlay_menu({
+		definition = create_UIBox_texture_config(e.config.ref_table.texture_pack)
+	})
+end
+
+function create_UIBox_texture_config(texture)
+    local label = {text = 'Page 1'}
+    
+    local t = create_UIBox_generic_options({ back_func = 'textures_button', contents = {
+        {n=G.UIT.R, config = {colour = G.C.CLEAR, align = 'cm', minw = 12}, nodes = {
+            {n=G.UIT.C, config={align = "cm", padding = 0.15, r = 0.1, minw = 12}, nodes={
+                {n=G.UIT.R, config={align = "cm", colour = G.C.CLEAR, r = 0.1, padding = 0.2}, nodes={
+                    {n=G.UIT.T, config = {text = 'Configuring', scale = 0.8, colour = G.C.WHITE, shadow = true}},
+                    {n=G.UIT.T, config = {text = localize({type = 'name_text', set = 'texture_packs', key = texture}), scale = 0.8, colour = G.C.WHITE, shadow = true}}
+                }},
+                -- Main Texture Select Display
+                {n=G.UIT.R, config = {colour = G.C.BLACK, r = 0.1, minh = 7.5, minw = 12, align = 'tm', padding = 0.5}, nodes = {
+                    {n=G.UIT.R, config = {align = 'tl'}, nodes ={
+                        Malverk.texture_config_toggles(texture)
+                    }},
+                    -- Page cycler
+                    {n=G.UIT.R, config = {align = 'cm'}, nodes ={
+                        EremelUtility.page_cycler({
+                            object_table = Malverk.config.texture_configs[texture],
+                            page_size = 18,
+                            key = 'texture'
+                        })
+                    }},
+                }},
+            }},
+        }}
+    }})
+    return t
+end
+
+Malverk.texture_config_toggles = function(texture)
+    local toggles = {n=G.UIT.R, config = {align = 'tm'}, nodes = {
+        {n=G.UIT.C, config = {align = 'tl'}, nodes = {}},
+        {n=G.UIT.C, config = {align = 'tl'}, nodes = {}},
+    }}
+        for i, key in ipairs(TexturePacks[texture].textures) do
+            local current_toggle = EremelUtility.create_toggle({
+                label = localize({type = 'name_text', set = 'alt_texture', key = key}),
+                ref_table = Malverk.config.texture_configs[texture],
+                ref_value = key,
+                left = false,
+            })
+            if i < 10 then 
+                toggles.nodes[1].nodes[#toggles.nodes[1].nodes + 1] = current_toggle
+            else
+                toggles.nodes[2].nodes[#toggles.nodes[2].nodes + 1] = current_toggle
+            end
+        end
+    return toggles
 end
 
 G.FUNCS.remove_texture = function(e)
@@ -392,7 +465,8 @@ function create_texture_card(area, texture_pack)
     
     local layer = texture.animated and 'animatedSprite' or texture.set == 'Sticker' and 'front' or 'center'    
     local game_table = AltTextures_Utils.game_table[texture.set] or 'P_CENTERS'
-    local scale = math.max(texture.atlas.px/71, texture.atlas.py/95)*1.5
+    local scale = math.max(texture.atlas.px/71, texture.atlas.py/95)
+    if scale < 1 then scale = scale * 1.5 end
     local W = G.CARD_W*(texture.atlas.px/71)/scale
     local H = G.CARD_H*(texture.atlas.py/95)/scale
     
@@ -506,4 +580,156 @@ function table.contains(table, element)
 		end
 	end
 	return false
+end
+
+
+EremelUtility = {}
+EremelUtility.page_cycler_values = {}
+
+G.FUNCS.eremel_default = function(e)
+    local args = e.config.pass_through
+    local page_from = EremelUtility.page_cycler_values[args.key].page
+    local page_to = EremelUtility.page_cycler_values[args.key].page + e.config.direction
+    if page_to == 0 then page_to = args.total_pages
+    elseif page_to > args.total_pages then page_to = 1 end
+    EremelUtility.page_cycler_values[args.key].page = page_to
+    EremelUtility.page_cycler_values[args.key].text = localize('k_page')..' '..EremelUtility.page_cycler_values[args.key].page..'/'..args.total_pages
+    
+    
+    if e.config.switch_func and type(e.config.switch_func) == 'function' then
+        e.config.switch_func({from = page_from, to = page_to})
+    else
+        sendInfoMessage('No switch_func provided', 'EremelUtility')
+        sendInfoMessage(tprint({from = page_from, to = page_to}), 'EremelUtility')
+    end
+end
+
+function EremelUtility.page_cycler(args)
+    args = args or {}
+    args.left = args.left or '<'
+    args.right = args.right or '>'
+    args.colour = args.colour or Malverk.badge_colour
+    args.button_colour = args.button_colour or G.C.WHITE
+    args.button = args.button or 'eremel_default'
+    args.switch_func = args.switch_func
+    args.hover = args.hover or true
+    args.object_table = args.object_table -- REQUIRED
+    args.page_size = args.page_size -- REQUIRED
+    args.page_label = args.page_label -- REQUIRED
+    args.label_colour = args.label_colour or G.C.WHITE
+    args.scale = args.scale or 0.5
+    args.button_w = args.button_w or 3
+    args.w = args.w or 8
+    args.shadow = args.shadow or true
+
+    local error = {n=G.UIT.C, config = {r=0.1, colour = G.C.RED, align = 'cm', padding = 0.1}, nodes = {}}
+    if not args.key then
+        error.nodes[#error.nodes + 1] = {n=G.UIT.R, nodes = {{n=G.UIT.T, config = {text = 'Page Cycler missing key', scale = args.scale, colour = G.C.BLACK, shadow = true}}}}
+    end
+    if not args.object_table then
+        error.nodes[#error.nodes + 1] = {n=G.UIT.R, nodes = {{n=G.UIT.T, config = {text = 'Page Cycler missing object_table', scale = args.scale, colour = G.C.BLACK, shadow = true}}}}
+    end
+    if not args.page_size then
+        error.nodes[#error.nodes + 1] = {n=G.UIT.R, nodes = {{n=G.UIT.T, config = {text = 'Page Cycler missing page_size', scale = args.scale, colour = G.C.BLACK, shadow = true}}}}
+    end
+    
+    if #error.nodes > 0 then return error end
+    
+    args.total_pages = math.ceil(table.size(args.object_table)/args.page_size)
+
+    if not args.page_label then
+        EremelUtility.page_cycler_values[args.key] = {page = 1}
+        EremelUtility.page_cycler_values[args.key].text = localize('k_page')..' '..EremelUtility.page_cycler_values[args.key].page..'/'..args.total_pages
+        args.page_label = EremelUtility.page_cycler_values[args.key]
+    end 
+
+    local cycler = {n=G.UIT.R, config = {align = 'cm'}, nodes = {
+        table.size(args.object_table) > args.page_size and {n=G.UIT.C, config={pass_through = args, switch_func = args.switch_func, r = 0.1, colour = args.colour, minw = args.button_w * args.scale, align = 'tm', shadow = args.shadow, direction = -1, button = args.button, hover = args.hover, minh = 0.5}, nodes = {
+            {n=G.UIT.T, config = {text = args.left, scale = args.scale, colour = args.button_colour}}
+        }} or nil,
+        table.size(args.object_table) > args.page_size and {n=G.UIT.C, config = {align = 'cm', minw = args.w * args.scale}, nodes = {
+            {n=G.UIT.O, config = {object = DynaText({
+                string = {{ref_table = args.page_label, ref_value = 'text'}},
+                scale = args.scale,
+                colours = {args.label_colour},
+                pop_in_rate = 0,
+                silent = true
+            })}}
+        }} or nil,
+        table.size(args.object_table) > args.page_size and {n=G.UIT.C, config={pass_through = args, switch_func = args.switch_func, r = 0.1, colour = args.colour, minw = args.button_w * args.scale, align = 'tm', shadow = args.shadow, direction = 1, button = args.button, hover = args.hover, minh = 0.5}, nodes = {
+            {n=G.UIT.T, config = {text = args.right, scale = args.scale, colour = args.button_colour}}
+        }} or nil,
+    }}
+
+    return cycler
+end
+
+function EremelUtility.create_toggle(args)
+    args = args or {}
+    args.active_colour = args.active_colour or Malverk.badge_colour
+    args.inactive_colour = args.inactive_colour or G.C.BLACK
+    args.w = args.w or 3
+    args.h = args.h or 0.5
+    args.scale = args.scale or 1
+    args.label = args.label or 'TEST?'
+    args.label_scale = args.label_scale or 0.4
+    args.ref_table = args.ref_table or {}
+    args.ref_value = args.ref_value or 'test'
+    args.left = args.left or false
+    args.right = args.right or true
+    args.info_above = args.info_above or false
+
+    local error = {n=G.UIT.C, config = {r=0.1, colour = G.C.RED, align = 'cm', padding = 0.1}, nodes = {}}
+
+    if args.left and args.right then
+        error.nodes[#error.nodes + 1] = {n=G.UIT.R, nodes = {{n=G.UIT.T, config = {text = 'Left and Right selected', scale = args.scale, colour = G.C.BLACK, shadow = true}}}}
+    end
+
+    if #error.nodes > 0 then return error end
+
+    local check = Sprite(0,0,0.5*args.scale,0.5*args.scale,G.ASSET_ATLAS["icons"], {x=1, y=0})
+    check.states.drag.can = false
+    check.states.visible = false
+
+    local info = nil
+    if args.info then 
+        info = {}
+        for k, v in ipairs(args.info) do 
+            table.insert(info, {n=G.UIT.R, config={align = "cm", minh = 0.05}, nodes={
+            {n=G.UIT.T, config={text = v, scale = 0.25, colour = G.C.UI.TEXT_LIGHT}}
+            }})
+        end
+        info =  {n=G.UIT.R, config={align = "cm", minh = 0.05}, nodes=info}
+    end
+
+    local toggle = {n=G.UIT.C, config = {align = 'cm', minw = 0.3*args.w}, nodes = {
+        {n=G.UIT.C, config = {align = 'cm', r=0.1, colour = G.C.BLACK}, nodes={
+            {n=G.UIT.C, config={align = "cm", r = 0.1, padding = 0.03, minw = 0.4*args.scale, minh = 0.4*args.scale, outline_colour = G.C.WHITE, outline = 1.2*args.scale, line_emboss = 0.5*args.scale, ref_table = args,
+                colour = args.inactive_colour,
+                button = 'toggle_button', button_dist = 0.2, hover = true, toggle_callback = args.callback, func = 'toggle', focus_args = {funnel_to = true}}, nodes={
+                {n=G.UIT.O, config={object = check}},
+            }}
+        }}
+    }}
+
+    local label = {n=G.UIT.C, config={align = args.left and 'cr' or 'cl', minw = args.w}, nodes={
+        {n=G.UIT.T, config={text = args.label, scale = args.label_scale, colour = G.C.UI.TEXT_LIGHT}},
+        {n=G.UIT.B, config={w = 0.1, h = 0.1}},
+    }}
+
+    local t = 
+        {n=args.col and G.UIT.C or G.UIT.R, config={align = args.left and 'cr' or 'cl', padding = 0.1, r = 0.1, colour = G.C.CLEAR, focus_args = {funnel_from = true}}, nodes={
+            args.left and label or nil,
+            toggle,
+            args.right and label or nil
+        }}
+
+    if args.info then 
+        t = {n=args.col and G.UIT.C or G.UIT.R, config={align = "cm"}, nodes={
+        args.info_above and info or nil,
+        t,
+        args.info_above and nil or info,
+        }}
+    end
+    return t
 end

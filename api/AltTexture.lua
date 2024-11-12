@@ -142,7 +142,7 @@ AltTexture = SMODS.GameObject:extend {
         end
         -- store the atlas
         self.atlas = self.animated and G.ANIMATION_ATLAS[self.key] or G.ASSET_ATLAS[self.key]
-        if self.keys then self.columns = self.atlas.image:getWidth()/self.atlas.px; self.original_sheet = self.original_sheet or false end
+        if self.keys then self.columns = math.floor(self.atlas.image:getWidth()/self.atlas.px); self.original_sheet = self.original_sheet or false end
         self.keys = self.keys or Malverk.keys[self.set] or Malverk.get_keys_from_pool(self.set)
         -- if first texture, create default texture
         if not AltTextures_Utils.selectors[self.set] then
@@ -191,6 +191,16 @@ TexturePack = SMODS.GameObject:extend {
             new_textures[#new_textures + 1] = temp.key
         end
         self.textures = new_textures
+        if not Malverk.config.texture_configs then Malverk.config.texture_configs = {} end
+        if not Malverk.config.texture_configs[self.key] then
+            Malverk.config.texture_configs[self.key] = {}
+            for _, key in ipairs(self.textures) do
+                Malverk.config.texture_configs[self.key][key] = true
+            end
+            for _, key in ipairs(self.toggle_textures or {}) do
+                Malverk.config.texture_configs[self.key][key] = false
+            end
+        end
         table.insert(TexturePacks_Utils.keys, self.key)
     end
 }

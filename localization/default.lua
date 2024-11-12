@@ -21,13 +21,16 @@ return {
 			-- ['b_Seal'] = 'Seals',
 			-- ['b_Voucher'] = 'Vouchers',
 			-- ['b_Booster'] = 'Booster Packs',
-			k_space_station = 'Space Station',
-			k_realm = 'Realm',
-			k_universe = 'Universe',
-			k_plane = 'Plane',
         },
     },
 	descriptions = {
+		malverk = {
+			config = {
+				text = {
+					'Configuring #1#'
+				}
+			}
+		},
 		texture_packs = {
 			default = {
 				name = 'Default',
