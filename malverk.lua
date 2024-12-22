@@ -6,7 +6,7 @@
 --- MOD_DESCRIPTION: Malverk is an all-in-one texture manager. With an inbuilt API for AltTextures and TexturePacks, Malverk integrates a simple UI to customise which textures are applied to your game whenever you wish.
 --- BADGE_COLOUR: 3FC7EB
 --- PRIORITY: -999999
---- VERSION: 1
+--- VERSION: 1.1
 
 Malverk = SMODS.current_mod
 Malverk.badges = {}
@@ -103,7 +103,7 @@ function Malverk.update_atlas(atlas_type)
                                 if center == 'c_soul' then
                                     if texture.soul then
                                         G.shared_soul:remove()
-                                        G.shared_soul = Sprite(0, 0, G.CARD_W, G.CARD_H, G.ASSET_ATLAS[texture.soul.key], G.P_CENTERS.soul.pos)
+                                        G.shared_soul = Sprite(0, 0, G.CARD_W, G.CARD_H, G.ASSET_ATLAS[texture.soul_atlas.key], G.P_CENTERS.soul.pos)
                                     else
                                         G.shared_soul = G.default_soul
                                     end
@@ -231,3 +231,11 @@ function Game:main_menu(context)
     Malverk.update_atlas()
     main_menu(self, context)
 end
+
+local load_profile_ref = G.FUNCS.load_profile
+G.FUNCS.load_profile = function(delete_prof_data)
+    Malverk.set_defaults() 
+    load_profile_ref(delete_prof_data)
+end
+
+SMODS.Atlas.pre_inject_class = nil

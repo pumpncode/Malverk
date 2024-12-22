@@ -123,7 +123,7 @@ AltTexture = SMODS.GameObject:extend {
                 set = 'Atlas',
                 mod = self.mod
             })
-            self.soul = G.ASSET_ATLAS[self.key..'_soul']
+            self.soul_atlas = G.ASSET_ATLAS[self.key..'_soul']
         end
         if self.stickers then
             local dot_pos = string.find(self.path, "%.")
