@@ -6,6 +6,17 @@ function G.FUNCS.textures_button(e)
 	})
 end
 
+SMODS.Joker{
+    key = 'dummy',
+    pos = {x=0, y=0},
+    atlas = 'Joker',
+    prefix_config = {atlas = false},
+    no_collection = true,
+    in_pool = function()
+        return false
+    end
+}
+
 
 
 function G.FUNCS.texture_type(e)
@@ -460,7 +471,7 @@ end
 function create_texture_card(area, texture_pack)
     local texture = AltTextures[TexturePacks[texture_pack].textures[1]]
     local card = Card(area.T.x, area.T.y, G.CARD_W, G.CARD_H,
-        nil, copy_table(G.P_CENTER_POOLS.Joker[1]),
+        nil, G.P_CENTERS.j_joker,
         {texture_pack = texture_pack})
     
     local layer = texture.animated and 'animatedSprite' or texture.set == 'Sticker' and 'front' or 'center'    
@@ -498,6 +509,11 @@ function create_texture_card(area, texture_pack)
     end
     
     if texture_pack ~= 'default' then
+        local atlas_copy =  {}
+        for k, v in pairs(card.children[layer].atlas) do
+            atlas_copy[k] = v
+        end
+        card.children[layer].atlas = atlas_copy
         card.children[layer].atlas.name = texture.atlas.key
     else
         card.children[layer].atlas.name = 'Joker'
@@ -704,7 +720,7 @@ function EremelUtility.create_toggle(args)
 
     local toggle = {n=G.UIT.C, config = {align = 'cm', minw = 0.3*args.w}, nodes = {
         {n=G.UIT.C, config = {align = 'cm', r=0.1, colour = G.C.BLACK}, nodes={
-            {n=G.UIT.C, config={align = "cm", r = 0.1, padding = 0.03, minw = 0.4*args.scale, minh = 0.4*args.scale, outline_colour = G.C.WHITE, outline = 1.2*args.scale, line_emboss = 0.5*args.scale, ref_table = args,
+            {n=G.UIT.C, config={align = "cm", r = 0.1, padding = 0.03, minw = 0.4*args.scale, minh = 0.4*args.scale, outline_colour = args.outline or G.C.WHITE, outline = 1.2*args.scale, line_emboss = 0.5*args.scale, ref_table = args,
                 colour = args.inactive_colour,
                 button = 'toggle_button', button_dist = 0.2, hover = true, toggle_callback = args.callback, func = 'toggle', focus_args = {funnel_to = true}}, nodes={
                 {n=G.UIT.O, config={object = check}},

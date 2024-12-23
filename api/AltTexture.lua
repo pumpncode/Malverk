@@ -99,7 +99,7 @@ AltTexture = SMODS.GameObject:extend {
         check_type_present(self.set)
         if self.frames then self.animated = true end
         -- create the atlas for the new texture
-        SMODS.Atlas.inject({
+        local atlas = SMODS.Atlas({
             key = self.key,
             path = self.path,
             px = self.px or AltTextures_Utils.dimensions[self.set] and AltTextures_Utils.dimensions[self.set].px or 71, -- px and py are not required
@@ -111,8 +111,9 @@ AltTexture = SMODS.GameObject:extend {
             frames = self.frames or nil,
             mod = self.mod
         })
+        atlas:inject()
         if self.soul then
-            SMODS.Atlas.inject({
+            local soul_atlas = SMODS.Atlas({
                 key = self.key..'_soul',
                 path = self.soul,
                 px = self.px or AltTextures_Utils.dimensions[self.set] and AltTextures_Utils.dimensions[self.set].px or 71, -- px and py are not required
@@ -123,11 +124,12 @@ AltTexture = SMODS.GameObject:extend {
                 set = 'Atlas',
                 mod = self.mod
             })
+            soul_atlas:inject()
             self.soul_atlas = G.ASSET_ATLAS[self.key..'_soul']
         end
         if self.stickers then
             local dot_pos = string.find(self.path, "%.")
-            SMODS.Atlas.inject({
+            local sticker_atlas = SMODS.Atlas({
                 key = self.key..'_stickers',
                 path = string.sub(self.path,1,dot_pos - 1)..'_stickers'..string.sub(self.path, dot_pos),
                 px = self.sticker_px or 71, -- px and py are not required
@@ -138,6 +140,7 @@ AltTexture = SMODS.GameObject:extend {
                 set = 'Atlas',
                 mod = self.mod
             })
+            sticker_atlas:inject()
             self.stickers = G.ASSET_ATLAS[self.key..'_stickers']
         end
         -- store the atlas
