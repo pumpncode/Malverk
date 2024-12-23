@@ -471,7 +471,7 @@ end
 function create_texture_card(area, texture_pack)
     local texture = AltTextures[TexturePacks[texture_pack].textures[1]]
     local card = Card(area.T.x, area.T.y, G.CARD_W, G.CARD_H,
-        nil, G.P_CENTERS.j_joker,
+        nil, copy_table(G.P_CENTERS.j_joker),
         {texture_pack = texture_pack})
     
     local layer = texture.animated and 'animatedSprite' or texture.set == 'Sticker' and 'front' or 'center'    
