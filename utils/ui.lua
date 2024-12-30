@@ -519,19 +519,19 @@ function create_texture_card(area, texture_pack)
         card.children[layer].atlas.name = 'Joker'
     end
     
-    if texture.original_sheet and texture.keys then
+    if texture.original_sheet and texture.keys and texture_pack ~= 'default' then
         card.children[layer].sprite_pos = G[game_table][texture.keys[1]].default_pos or G[game_table][texture.keys[1]].pos
     end
     
-    if texture.display_pos then
+    if texture.display_pos and texture_pack ~= 'default' then
         card.children[layer].sprite_pos = type(texture.display_pos) == 'table' and texture.display_pos or (texture.original_sheet and G[game_table][texture.display_pos].default_pos or G[game_table][texture.display_pos].pos)
     end
     
     card.children[layer]:reset()
 
-    if texture.animated then return card end
+    if texture.animated and texture_pack ~= 'default' then return card end
 
-    if texture.atlas.px ~= 71 and texture.atlas.py ~= 95 and not texture.animated then
+    if texture.atlas.px ~= 71 and texture.atlas.py ~= 95 and not texture.animated and texture_pack ~= 'default' then
         card.T.w = W
         card.T.h = H
         card.children[layer] = Sprite(card.T.x, card.T.y, G.CARD_W, G.CARD_H, G.ASSET_ATLAS[texture.atlas.key], card.children.center.sprite_pos)
@@ -542,7 +542,7 @@ function create_texture_card(area, texture_pack)
         card.children[layer]:set_role({major = card, role_type = 'Glued', draw_major = card})
     end
 
-    if texture.soul_keys and table.contains(texture.soul_keys, texture.keys[1]) then
+    if texture.soul_keys and table.contains(texture.soul_keys, texture.keys[1]) and texture_pack ~= 'default' then
         card.config[layer].soul_pos = {x = 1 % texture.columns, y = math.floor(1/texture.columns)}
         card.children.floating_sprite = Sprite(card.T.x, card.T.y, card.T.w, card.T.h, G.ASSET_ATLAS[texture.atlas.key], card.config[layer].soul_pos)
     end
