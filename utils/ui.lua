@@ -6,19 +6,6 @@ function G.FUNCS.textures_button(e)
 	})
 end
 
-SMODS.Joker{
-    key = 'dummy',
-    pos = {x=0, y=0},
-    atlas = 'Joker',
-    prefix_config = {atlas = false},
-    no_collection = true,
-    in_pool = function()
-        return false
-    end
-}
-
-
-
 function G.FUNCS.texture_type(e)
     sendDebugMessage(e.config.id)
 end
