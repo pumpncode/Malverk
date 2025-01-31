@@ -211,7 +211,7 @@ Malverk.keys.Spectral = {
     'c_black_hole',
 }
 Malverk.keys.Voucher = {
-    'v_overstock_norm ',
+    'v_overstock_norm',
     'v_clearance_sale',
     'v_hone',
     'v_reroll_surplus',
