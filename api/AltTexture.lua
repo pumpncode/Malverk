@@ -203,6 +203,17 @@ TexturePack = SMODS.GameObject:extend {
             for _, key in ipairs(self.toggle_textures or {}) do
                 Malverk.config.texture_configs[self.key][key] = false
             end
+        else
+            for _, key in ipairs(self.textures) do
+                if type(Malverk.config.texture_configs[self.key][key]) ~= 'boolean' then
+                    Malverk.config.texture_configs[self.key][key] = true
+                end
+            end
+            for _, key in ipairs(self.toggle_textures or {}) do
+                if type(Malverk.config.texture_configs[self.key][key]) ~= 'boolean' then
+                    Malverk.config.texture_configs[self.key][key] = false
+                end
+            end
         end
         table.insert(TexturePacks_Utils.keys, self.key)
     end
