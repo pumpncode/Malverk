@@ -318,7 +318,7 @@ function create_texture_pack_buttons(card, active)
         }}
         config = {n=G.UIT.R, config={minh = 1.45}}
         spacer = {n=G.UIT.R, config={minh = 0.65}}
-        if #TexturePacks[card.params.texture_pack].textures > 1 then 
+        if #TexturePacks[card.params.texture_pack].textures + #TexturePacks[card.params.texture_pack].toggle_textures > 1 then 
             local settings_sprite = Sprite(0, 0, 0.5, 0.5, G.ASSET_ATLAS['malverk_settings'] ,{x=0, y=0})
             config = {n=G.UIT.R, config={align = 'cr', minw = 1.6*G.CARD_W}, nodes={
                 {n=G.UIT.R, config={minh = 0.65}},
@@ -388,11 +388,12 @@ Malverk.texture_config_toggles = function(texture)
         {n=G.UIT.C, config = {align = 'tl'}, nodes = {}},
         {n=G.UIT.C, config = {align = 'tl'}, nodes = {}},
     }}
-        for i, key in ipairs(TexturePacks[texture].textures) do
+    local textures = SMODS.merge_lists({TexturePacks[texture].textures, TexturePacks[texture].toggle_textures})
+        for i=#textures, 1, -1 do
             local current_toggle = EremelUtility.create_toggle({
-                label = localize({type = 'name_text', set = 'alt_texture', key = key}),
+                label = localize({type = 'name_text', set = 'alt_texture', key = textures[i]}),
                 ref_table = Malverk.config.texture_configs[texture],
-                ref_value = key,
+                ref_value = textures[i],
                 left = false,
             })
             if i < 10 then 
@@ -457,6 +458,14 @@ end
 
 function create_texture_card(area, texture_pack)
     local texture = AltTextures[TexturePacks[texture_pack].textures[1]]
+    if TexturePacks[texture_pack].dynamic_display and Malverk.config.texture_configs[texture_pack] then
+        local textures = SMODS.merge_lists({TexturePacks[texture_pack].textures, TexturePacks[texture_pack].toggle_textures})
+        local i = 1
+        while (not Malverk.config.texture_configs[texture_pack][textures[i]]) and i < #textures do
+            i = i + 1
+            if AltTextures[textures[i]].display_pos then texture = AltTextures[textures[i]] end
+        end
+    end
     local card = Card(area.T.x, area.T.y, G.CARD_W, G.CARD_H,
         nil, copy_table(G.P_CENTERS.j_joker),
         {texture_pack = texture_pack})
@@ -511,7 +520,7 @@ function create_texture_card(area, texture_pack)
     end
     
     if texture.display_pos and texture_pack ~= 'default' then
-        card.children[layer].sprite_pos = type(texture.display_pos) == 'table' and texture.display_pos or (texture.original_sheet and G[game_table][texture.display_pos].default_pos or G[game_table][texture.display_pos].pos)
+        card.children[layer].sprite_pos = type(texture.display_pos) == 'table' and texture.display_pos or (texture.original_sheet and G[game_table][texture.display_pos].default_pos or Malverk.get_pos_on_sheet(texture.display_pos, texture))
     end
     
     card.children[layer]:reset()
@@ -585,7 +594,14 @@ function table.contains(table, element)
 	return false
 end
 
-
+function Malverk.get_pos_on_sheet(key, texture)
+    if texture.original_sheet then return false end
+    local place = 0
+    for i, tex_key in ipairs(texture.keys) do
+        if tex_key == key then place = i end
+    end
+    return {x = (place-1) % texture.columns, y = math.floor((place-1)/texture.columns)}
+end
 EremelUtility = {}
 EremelUtility.page_cycler_values = {}
 
@@ -646,7 +662,7 @@ function EremelUtility.page_cycler(args)
         args.page_label = EremelUtility.page_cycler_values[args.key]
     end 
 
-    local cycler = {n=G.UIT.R, config = {align = 'cm'}, nodes = {
+    local cycler = {n=G.UIT.R, config = {align = 'cm', minh = args.h or nil}, nodes = {
         table.size(args.object_table) > args.page_size and {n=G.UIT.C, config={pass_through = args, switch_func = args.switch_func, r = 0.1, colour = args.colour, minw = args.button_w * args.scale, align = 'tm', shadow = args.shadow, direction = -1, button = args.button, hover = args.hover, minh = 0.5}, nodes = {
             {n=G.UIT.T, config = {text = args.left, scale = args.scale, colour = args.button_colour}}
         }} or nil,

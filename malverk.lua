@@ -81,7 +81,7 @@ function Malverk.update_atlas(atlas_type)
                             if G[game_table][center] then
                                 if texture.set == 'Seal' then
                                     G[game_table][center]:remove()
-                                    G[game_table][center] = Sprite(0, 0, G.CARD_W, G.CARD_H, G.ASSET_ATLAS[texture.atlas.key], (texture.columns and not texture.original_sheet and {x = (i-1) % texture.columns, y = math.floor((i-1)/texture.columns)} or G.P_SEALS[center].default_pos))
+                                    G[game_table][center] = Sprite(0, 0, G.CARD_W, G.CARD_H, G.ASSET_ATLAS[texture.atlas.key], (texture.columns and not texture.original_sheet and Malverk.get_pos_on_sheet(center, texture) or G.P_SEALS[center].default_pos))
                                 else
                                     G[game_table][center].atlas = texture.atlas.key
                                 end

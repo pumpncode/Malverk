@@ -62,6 +62,8 @@ Once you have defined your `AltTexture` objects, you need to bundle them togethe
 TexturePack({
   key = 'example_texture', -- the key of the texture
   textures = {'mod_prefix_alttexturekey', 'mod_prefix_alttexturekey2'}, -- a table of keys of your AltTexture objects
+  toggle_textures = {'mod_prefix_alttexturekey3', 'mod_prefix_alttexturekey4'}, -- OPTIONAL - a table of keys of AltTexture objects that start disabled
+  dynamic_display = true, -- OPTIONAL - used to dynamically update your pack icon based on enabled AltTextures (requires multiple textures with a display_pos), iterates through list of textures, followed by toggle_textures
   loc_txt = { -- Localization text for tooltips displayed in the texture selection screen - can be added to a localization file under [descriptions][texture_packs]
     name = 'Texture Pack Name',
     text = {'description line 1', 'description line 2'}
