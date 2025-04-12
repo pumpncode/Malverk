@@ -294,7 +294,7 @@ function Card:highlight(highlighted)
         return
     end
     card_highlight(self, highlighted)
-    if highlighted and self.area.config.texture_pack then
+    if highlighted and self.area and self.area.config.texture_pack then
         self.children.use_button = UIBox{
             definition = create_texture_pack_buttons(self, self.texture_selected), 
             config = {align = 'cm', offset = {x=0, y=0.4}, parent = self}
