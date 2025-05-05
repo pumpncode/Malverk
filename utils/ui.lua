@@ -318,7 +318,7 @@ function create_texture_pack_buttons(card, active)
         }}
         config = {n=G.UIT.R, config={minh = 1.45}}
         spacer = {n=G.UIT.R, config={minh = 0.65}}
-        if #TexturePacks[card.params.texture_pack].textures + #TexturePacks[card.params.texture_pack].toggle_textures > 1 then 
+        if #TexturePacks[card.params.texture_pack].textures + (TexturePacks[card.params.texture_pack].toggle_textures and #TexturePacks[card.params.texture_pack].toggle_textures) > 1 then 
             local settings_sprite = Sprite(0, 0, 0.5, 0.5, G.ASSET_ATLAS['malverk_settings'] ,{x=0, y=0})
             config = {n=G.UIT.R, config={align = 'cr', minw = 1.6*G.CARD_W}, nodes={
                 {n=G.UIT.R, config={minh = 0.65}},
